@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>do you love me?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500;1,9..144,600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #2B0A0A;
+    --burgundy: #4A1220;
+    --burgundy-deep: #370C17;
+    --rose: #E8A0A6;
+    --blush: #F7DCD4;
+    --gold: #D4A548;
+    --cream: #FBEFE6;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body{
+    background: radial-gradient(ellipse at 50% 20%, var(--burgundy) 0%, var(--burgundy-deep) 70%);
+    font-family: 'Outfit', sans-serif;
+    color: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* subtle ambient texture */
+  body::before{
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(247,220,212,0.05) 1px, transparent 1px);
+    background-size: 26px 26px;
+    pointer-events: none;
+  }
+
+  #card{
+    position: relative;
+    text-align: center;
+    padding: 48px 40px;
+    max-width: 520px;
+    width: 90vw;
+    z-index: 2;
+  }
+
+  .heart{
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 28px;
+    color: var(--gold);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse{
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.14); }
+  }
+
+  .eyebrow{
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+
+  h1{
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(30px, 6vw, 44px);
+    line-height: 1.15;
+    margin: 0 0 6px;
+    color: var(--cream);
+  }
+
+  h1 em{
+    display: block;
+    font-style: italic;
+    font-weight: 600;
+    color: var(--gold);
+    margin-top: 4px;
+  }
+
+  .taunt{
+    min-height: 22px;
+    font-size: 14px;
+    color: var(--rose);
+    margin-top: 18px;
+    font-style: italic;
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+  }
+
+  #buttonRow{
+    margin-top: 34px;
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  button{
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 999px;
+    cursor: pointer;
+    border: none;
+    padding: 15px 30px;
+    transition: transform 0.35s cubic-bezier(.34,1.56,.64,1), background 0.2s ease, opacity 0.3s ease, box-shadow 0.2s ease;
+  }
+
+  button:focus-visible{
+    outline: 2px solid var(--cream);
+    outline-offset: 3px;
+  }
+
+  #yesBtn{
+    background: var(--gold);
+    color: var(--ink);
+    box-shadow: 0 6px 20px rgba(212,165,72,0.35);
+    position: relative;
+    z-index: 5;
+  }
+
+  #yesBtn:hover{
+    filter: brightness(1.08);
+  }
+
+  #noBtn{
+    background: transparent;
+    color: var(--rose);
+    border: 1.5px solid rgba(232,160,166,0.5);
+  }
+
+  #noBtn:hover{
+    border-color: var(--rose);
+    color: var(--cream);
+  }
+
+  /* --- state: yes button taking over the screen --- */
+  #yesBtn.growing{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+  }
+
+  /* --- final "yes" state --- */
+  #finalMessage{
+    display: none;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: clamp(28px, 7vw, 52px);
+    color: var(--ink);
+  }
+
+  #finalMessage span{
+    display: block;
+    font-family: 'Outfit', sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 15px;
+    margin-top: 14px;
+    color: rgba(43,10,10,0.65);
+    letter-spacing: 0.02em;
+  }
+
+  #confettiCanvas{
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .heart{ animation: none; }
+    button{ transition: none; }
+  }
+
+  @media (max-width: 420px){
+    #buttonRow{ gap: 12px; }
+    button{ padding: 13px 24px; font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confettiCanvas"></canvas>
+
+<div id="card">
+  <svg class="heart" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 21s-7.2-4.6-10-9.1C.3 8.8 1.7 5 5.4 4.2c2.1-.5 4.1.4 5.3 2.1a1 1 0 0 0 1.6 0c1.2-1.7 3.2-2.6 5.3-2.1C21.3 5 22.7 8.8 22 11.9 19.2 16.4 12 21 12 21z"/>
+  </svg>
+
+  <div id="question">
+    <p class="eyebrow">a very important question</p>
+    <h1>I love you.<em>Do you love me?</em></h1>
+
+    <div id="buttonRow">
+      <button id="yesBtn" onclick="sayYes()">yes, i love you</button>
+      <button id="noBtn" onmouseenter="dodge()" ontouchstart="dodge()" onclick="sayNo()">no, i don't love you</button>
+    </div>
+
+    <p class="taunt" id="taunt"></p>
+  </div>
+
+  <div id="finalMessage">
+    i love you more baby <span style="font-style:italic;">&lt;3</span>
+    <span>(that was never really a question)</span>
+  </div>
+</div>
+
+<script>
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn = document.getElementById('noBtn');
+  const taunt = document.getElementById('taunt');
+  const question = document.getElementById('question');
+  const finalMessage = document.getElementById('finalMessage');
+  const card = document.getElementById('card');
+
+  const taunts = [
+    "try again.",
+    "wrong answer.",
+    "the button's getting bigger, you know.",
+    "still no? bold.",
+    "this is your last chance.",
+    "ok, yes it is then."
+  ];
+
+  let noClicks = 0;
+  const MAX_CLICKS = 6;
+  let growing = false;
+
+  function dodge(){
+    if (growing) return;
+    const dx = (Math.random() - 0.5) * 90;
+    const dy = (Math.random() - 0.5) * 40;
+    noBtn.style.transform = `translate(${dx}px, ${dy}px)`;
+  }
+
+  function sayNo(){
+    noClicks = Math.min(noClicks + 1, MAX_CLICKS);
+    taunt.textContent = taunts[noClicks - 1];
+
+    if (noClicks === 1){
+      // switch yes button to fixed/centered so it can grow to fill the screen
+      const rect = yesBtn.getBoundingClientRect();
+      yesBtn.classList.add('growing');
+      yesBtn.style.transform = `translate(-50%, -50%) scale(1)`;
+      growing = true;
+    }
+
+    const scale = 1 + noClicks * 1.6;
+    yesBtn.style.transform = `translate(-50%, -50%) scale(${scale})`;
+
+    // fade everything else out as yes takes over
+    const fade = Math.min(noClicks / MAX_CLICKS, 1);
+    noBtn.style.opacity = String(1 - fade);
+    noBtn.style.pointerEvents = fade > 0.6 ? 'none' : 'auto';
+    document.querySelector('.eyebrow').style.opacity = String(1 - fade);
+    document.querySelector('h1').style.opacity = String(1 - fade * 0.8);
+
+    if (noClicks >= MAX_CLICKS){
+      taunt.textContent = "";
+      yesBtn.style.zIndex = "50";
+    }
+  }
+
+  function sayYes(){
+    question.style.display = 'none';
+    finalMessage.style.display = 'block';
+    card.style.padding = '0';
+    burstConfetti();
+  }
+
+  // --- lightweight confetti, no dependencies ---
+  const canvas = document.getElementById('confettiCanvas');
+  const ctx = canvas.getContext('2d');
+  function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const colors = ['#D4A548', '#E8A0A6', '#FBEFE6', '#4A1220', '#E9C46A'];
+  let particles = [];
+
+  function burstConfetti(){
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const count = reduced ? 0 : 160;
+    particles = [];
+    for (let i = 0; i < count; i++){
+      particles.push({
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        vx: (Math.random() - 0.5) * 14,
+        vy: (Math.random() - 1.4) * 14,
+        size: 5 + Math.random() * 6,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * 360,
+        rotationSpeed: (Math.random() - 0.5) * 14,
+        shape: Math.random() > 0.5 ? 'rect' : 'circle',
+        gravity: 0.28 + Math.random() * 0.12,
+        life: 0
+      });
+    }
+    requestAnimationFrame(animateConfetti);
+  }
+
+  function animateConfetti(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+
+    particles.forEach(p => {
+      p.vy += p.gravity;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vx *= 0.99;
+      p.rotation += p.rotationSpeed;
+      p.life++;
+
+      if (p.y < canvas.height + 40 && p.life < 420){
+        alive = true;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.max(0, 1 - p.life / 420);
+        if (p.shape === 'rect'){
+          ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    });
+
+    if (alive){
+      requestAnimationFrame(animateConfetti);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+</script>
+
+</body>
+</html>
